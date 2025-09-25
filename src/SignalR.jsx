@@ -10,15 +10,18 @@ function SignalR() {
   const [messages, setMessages] = useState([]);
   const messagesEndRef = useRef(null);
   const connectionRef = useRef(null);
+  const [url, setUrl] = useState("https://refactored-yodel-g4q7pvxgprgxh9gvp-5000.app.github.dev");
+  const [ isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl("https://refactored-yodel-g4q7pvxgprgxh9gvp-5000.app.github.dev/chathub") 
+      .withUrl(`${url}/chathub`) 
       .withAutomaticReconnect()
       .build();
 
     connection.start()
       .then(() => {
+        setIsConnected(true);
         console.log("Connected to SignalR Hub");
 
         // Join current channel
@@ -29,7 +32,7 @@ function SignalR() {
           setMessages((prev) => [...prev, { message: `${user}: ${msg}` }]);
         });
       })
-      .catch((err) => console.error("Connection failed:", err));
+      .catch((err) =>{setIsConnected(false); console.error("Connection failed:", err)});
 
     connectionRef.current = connection;
 
@@ -38,14 +41,14 @@ function SignalR() {
         connectionRef.current.stop();
       }
     };
-  }, [channel]);
+  }, [channel,url]);
 
   // re-join if channel changes
   useEffect(() => {
     if (connectionRef.current) {
       connectionRef.current.invoke("JoinChannel", channel);
     }
-  }, [channel]);
+  }, [channel,url]);
 
   // scroll to bottom on new messages
   useEffect(() => {
@@ -93,6 +96,15 @@ function SignalR() {
           alignItems: "center",
         }}
       >
+
+        <div style={{ color: "black", textAlign: "center" }}>{isConnected ? "Connected" : "Disconnected"}</div>
+        <Input
+          value={url}
+          placeholder="Enter SignalR URL"
+          style={{ width: 300 }}
+          onChange={(e) => setUrl(e.target.value)}
+        />
+        <div style={{ height: "20px" }}></div>
         <Select
           value={channel}
           placeholder="Select Socket Channel"
