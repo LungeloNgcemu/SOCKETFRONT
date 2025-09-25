@@ -13,7 +13,7 @@ function SignalR() {
 
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7017/chathub") 
+      .withUrl("https://refactored-yodel-g4q7pvxgprgxh9gvp-5000.app.github.dev/chathub") 
       .withAutomaticReconnect()
       .build();
 
